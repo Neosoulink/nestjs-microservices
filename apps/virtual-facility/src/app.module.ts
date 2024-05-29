@@ -19,7 +19,6 @@ import { AppController } from './app.controller';
       database: process.env.POSTGRES_DB,
       autoLoadEntities: true,
       synchronize: true,
-      logging: ['query'],
     }),
     HealthModule,
   ],

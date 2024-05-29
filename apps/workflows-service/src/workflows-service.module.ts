@@ -19,7 +19,6 @@ import { HealthModule } from './health/health.module';
       database: process.env.POSTGRES_DB,
       autoLoadEntities: true,
       synchronize: true,
-      logging: ['query'],
     }),
     HealthModule,
   ],
