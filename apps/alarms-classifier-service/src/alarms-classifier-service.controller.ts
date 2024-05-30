@@ -1,9 +1,11 @@
-import { Controller, Logger } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { TracingLogger } from '@app/tracing/tracing.logger';
 
 @Controller()
 export class AlarmsClassifierServiceController {
-  private readonly logger = new Logger(AlarmsClassifierServiceController.name);
+  // private readonly logger = new Logger(AlarmsClassifierServiceController.name);
+  constructor(private readonly logger: TracingLogger) {} // 👈
 
   @MessagePattern('alarm.classify')
   classifyAlarm(@Payload() data: unknown) {
@@ -12,7 +14,6 @@ export class AlarmsClassifierServiceController {
     this.logger.debug(
       `Received new "alarm.classify" message: ${JSON.stringify(data)}`,
     );
-
     // Randomly return "critical", "non-critical", or "invalid".
     return {
       category: ['critical', 'non-critical', 'invalid'][
