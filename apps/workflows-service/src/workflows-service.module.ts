@@ -6,10 +6,12 @@ import { WorkflowsServiceController } from './workflows-service.controller';
 import { WorkflowsServiceService } from './workflows-service.service';
 import { WorkflowsModule } from './workflows/workflows.module';
 import { HealthModule } from './health/health.module';
+import { InboxModule } from './inbox/inbox.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
-    WorkflowsModule,
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST,
@@ -20,7 +22,9 @@ import { HealthModule } from './health/health.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    WorkflowsModule,
     HealthModule,
+    InboxModule,
   ],
   controllers: [WorkflowsServiceController],
   providers: [

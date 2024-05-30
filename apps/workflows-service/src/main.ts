@@ -11,6 +11,7 @@ async function bootstrap() {
       options: {
         urls: [process.env.RABBITMQ_URL],
         queue: 'workflows-service',
+        noAck: false, // 👈
       },
     },
     { inheritAppConfig: true },
@@ -19,4 +20,5 @@ async function bootstrap() {
   await app.startAllMicroservices();
   await app.listen(3001);
 }
+
 bootstrap();

@@ -21,6 +21,7 @@ export class OutboxEntitySubscriber
   listenTo() {
     return Outbox;
   }
+
   async afterInsert(event: InsertEvent<Outbox>) {
     await this.outboxProcessor.dispatchWorkflowEvent(event.entity);
     await event.manager.delete(Outbox, event.entity.id);

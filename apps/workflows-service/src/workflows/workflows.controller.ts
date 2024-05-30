@@ -1,16 +1,43 @@
-import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
-
+import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { CreateWorkflowDto, UpdateWorkflowDto } from '@app/workflows';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+
 import { WorkflowsService } from './workflows.service';
-import { EventPattern, Payload } from '@nestjs/microservices';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { Inbox } from '../inbox/entities/inbox.entity';
 
 @Controller('workflows')
 export class WorkflowsController {
-  constructor(private readonly workflowsService: WorkflowsService) {}
+  constructor(
+    private readonly workflowsService: WorkflowsService,
+    @InjectRepository(Inbox)
+    private readonly inboxRepository: Repository<Inbox>,
+  ) {}
 
   @EventPattern('workflows.create')
-  create(@Payload() createWorkflowDto: CreateWorkflowDto) {
-    return this.workflowsService.create(createWorkflowDto);
+  async create(
+    @Payload() createWorkflowDto: CreateWorkflowDto,
+    @Ctx() context: RmqContext, // 👈
+  ) {
+    const message = context.getMessage();
+
+    const inboxMessage = await this.inboxRepository.findOne({
+      where: {
+        messageId: message.properties.messageId,
+      },
+    });
+
+    if (!inboxMessage) {
+      await this.inboxRepository.save({
+        messageId: message.properties.messageId,
+        pattern: context.getPattern(),
+        status: 'pending',
+        payload: createWorkflowDto,
+      });
+    }
+    const channel = context.getChannelRef();
+    channel.ack(message); // 👈
   }
 
   @Get()
