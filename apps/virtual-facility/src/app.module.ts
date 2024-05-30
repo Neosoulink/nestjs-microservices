@@ -6,9 +6,12 @@ import { BuildingsModule } from './buildings/buildings.module';
 import { HealthModule } from './health/health.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
+import { OutboxModule } from './outbox/outbox.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     BuildingsModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -21,6 +24,7 @@ import { AppController } from './app.controller';
       synchronize: true,
     }),
     HealthModule,
+    OutboxModule,
   ],
   controllers: [AppController],
   providers: [
